@@ -1,5 +1,5 @@
 .container-fluid {
-  padding: 20px 113px 70px;
+  padding: 20px 113px 20px;
 }
 .navbar {
   padding-top: 15px;
@@ -36,13 +36,4 @@
 .footer p {
   color: #fff;
   margin-top: 8%;
-}
-
-.btn {
-  background-color: #1abc9c;
-}
-
-#lIn,
-#lOt {
-  color: red;
 }

@@ -8,9 +8,12 @@ const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 const findOrCreate = require('mongoose-findorcreate');
+const date = require('date-and-time');
 
 const aboutContent =
   'Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.';
+
+let nameUser = '';
 
 const app = express();
 
@@ -55,7 +58,13 @@ const userSchema = new mongoose.Schema({
 });
 
 const postSchema = {
-  time: [Date]
+  username: String,
+  entry: String,
+  rawEntry: Number,
+  exit: String,
+  rawExit: Number,
+  duration: String,
+  complete: Boolean
 };
 
 userSchema.plugin(passportLocalMongoose);
@@ -85,6 +94,10 @@ app.get('/', function(req, res) {
   }
 });
 
+app.get('/fail-attempt', function(req, res) {
+  res.render('fail-attempt');
+});
+
 app.get('/register', function(req, res) {
   if (req.isAuthenticated()) {
     res.redirect('/logged');
@@ -95,9 +108,35 @@ app.get('/register', function(req, res) {
 
 app.get('/logged', function(req, res) {
   if (req.isAuthenticated()) {
-    // Post.find({ content: { $ne: null } }, function(err, foundPost) {
-    res.render('logged');
-    // });
+    Post.find({ username: nameUser }).exec(function(err, doc) {
+      const finalDoc = doc;
+      if (err) {
+        console.log(err);
+      } else if (Array.isArray(doc) && doc.length) {
+        const arr = doc[doc.length - 1];
+        Post.findById(arr._id, function(err, doc) {
+          if (err) {
+            console.log(err);
+          } else if (doc.complete === true) {
+            res.render('loggedFull', {
+              username: nameUser,
+              finalDoc: finalDoc
+            });
+          } else {
+            res.render('logged', {
+              username: nameUser,
+              finalDoc: finalDoc
+            });
+          }
+        });
+      } else {
+        // array is empty
+        res.render('loggedFull', {
+          username: nameUser,
+          finalDoc: finalDoc
+        });
+      }
+    });
   } else {
     res.redirect('/');
   }
@@ -114,6 +153,82 @@ app.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
+app.get('/logEntry', function(req, res) {
+  if (req.isAuthenticated()) {
+    const t = new Date();
+    const now = date.format(t, 'YYYY/MM/DD HH:mm:ss');
+    const rawNow = Date.now();
+    const post = new Post({
+      username: nameUser,
+      entry: now,
+      rawEntry: rawNow,
+      complete: false
+    });
+    post.save(function(err) {
+      if (err) {
+        console.log(err);
+      }
+      res.redirect('/logged');
+    });
+  } else {
+    res.redirect('/');
+  }
+});
+
+app.get('/logExit', function(req, res) {
+  if (req.isAuthenticated()) {
+    const t = new Date();
+    const now = date.format(t, 'YYYY/MM/DD HH:mm:ss');
+    const rawNow = Date.now();
+
+    function convertMS(milliseconds) {
+      var day, hour, minute, seconds;
+      seconds = Math.floor(milliseconds / 1000);
+      minute = Math.floor(seconds / 60);
+      seconds = seconds % 60;
+      hour = Math.floor(minute / 60);
+      minute = minute % 60;
+      day = Math.floor(hour / 24);
+      hour = hour % 24;
+      return {
+        day: day,
+        hour: hour,
+        minute: minute,
+        seconds: seconds
+      };
+    }
+
+    Post.find({ username: nameUser }).exec(function(err, doc) {
+      if (err) {
+        console.log(err);
+      }
+      const obj = doc[doc.length - 1];
+      let dur = convertMS(rawNow - obj.rawEntry);
+      const timeStr = dur.hour + ':' + dur.minute + ':' + dur.seconds;
+
+      Post.findOneAndUpdate(
+        { _id: obj._id },
+        {
+          $set: {
+            exit: now,
+            rawExit: rawNow,
+            complete: true,
+            duration: timeStr
+          }
+        },
+        { new: true } // return updated post
+      ).exec(function(err, post) {
+        if (err) {
+          console.log(err);
+        }
+        res.redirect('/');
+      });
+    });
+  } else {
+    res.redirect('/');
+  }
+});
+
 app.post('/register', function(req, res) {
   User.register({ username: req.body.username }, req.body.password, function(
     err,
@@ -123,7 +238,7 @@ app.post('/register', function(req, res) {
       console.log(err);
       res.redirect('/register');
     } else {
-      res.redirect('/');
+      res.render('success-register');
     }
   });
 });
@@ -137,10 +252,11 @@ app.post('/', function(req, res) {
     if (err) {
       console.log(err);
     } else {
-      passport.authenticate('local', { failureRedirect: '/' })(
+      passport.authenticate('local', { failureRedirect: '/fail-attempt' })(
         req,
         res,
         function() {
+          nameUser = req.body.username;
           res.redirect('/logged');
         }
       );
