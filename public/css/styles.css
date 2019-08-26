@@ -1,39 +1,23 @@
-.container-fluid {
-  padding: 20px 113px 20px;
-}
-.navbar {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  border: 0;
-  border-radius: 0;
-  margin-bottom: 0;
-  font-size: 12px;
-  letter-spacing: 5px;
-}
-.navbar-nav li a:hover {
-  color: #1abc9c !important;
+.entryBtn {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin: 20px 0 20px;
 }
 
-.footer .navbar-nav li a:hover {
-  color: rgb(59, 57, 57) !important;
+.greeting {
+  text-align: center;
+  margin: auto;
 }
 
-.footer .navbar-nav li a {
-  color: #fff;
+.entries {
+  text-align: center;
 }
 
-.footer-div {
-  position: relative;
+a {
+  text-decoration: none !important;
 }
 
-.footer {
-  position: absolute;
-  top: 100vh;
-  width: 100%;
-  background-color: #1abc9c;
-}
-
-.footer p {
-  color: #fff;
-  margin-top: 8%;
+.logo-brand {
+  text-transform: uppercase;
 }

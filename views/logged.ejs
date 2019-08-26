@@ -2,70 +2,99 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Payroll login</title>
-    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <title>Payroll Tracker</title>
+
+    <!-- Bootstrap core CSS -->
     <link
       rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
-      integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
       crossorigin="anonymous"
     />
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-    />
-    <link rel="stylesheet" href="/css/styles.css" />
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
-    <nav class="navbar navbar-default">
-      <div class="container">
-        <div class="navbar-header">
-          <a href="/" class="navbar-brand">Payroll login</a>
-        </div>
-        <ul class="nav navbar-nav navbar-right">
-          <!-- 6 -->
-          <li id="logout"><a href="/logout">SIGN OUT</a></li>
-        </ul>
-      </div>
-    </nav>
-    <div class="container-fluid">
-      <a href="/logExit" class="btn btn-primary mr-3">CREATE LOGOUT ENTRY</a>
+    <div
+      class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm"
+    >
+    <h5 class="my-0 mr-md-auto font-weight-normal">
+        <a class="logo-brand" href="/"> Payroll Tracker</a>
+      </h5>
+
+      <a class="btn btn-outline-primary" href="/logout">SIGNOUT</a>
     </div>
     <div class="container">
-      <h4>Howdy, <%= username %></h4>
-    </div>
-    <div class="container-fluid">
+      <div class="container">
+        <h4 class="greeting">Howdy, <%= username %></h4>
+        <a href="/logExit" class="btn btn-primary mr-3 entryBtn"
+          >CREATE LOGOUT ENTRY</a
+        >
+      </div>
+
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">Logged In (Date, Time)</th>
-            <th scope="col">Logged Out (Date, Time)</th>
-            <th scope="col">Duration (hh:mm:ss)</th>
+            <th scope="col" class="entries">Logged In (Date, Time)</th>
+            <th scope="col" class="entries">Logged Out (Date, Time)</th>
+            <th scope="col" class="entries">Duration (hh:mm:ss)</th>
           </tr>
         </thead>
 
         <tbody>
           <% for(let i = (finalDoc.length-1); i>=0;i--) { %>
           <tr>
-            <td><%= finalDoc[i].entry %></td>
-            <td><%= finalDoc[i].exit %></td>
-            <td><%= finalDoc[i].duration %></td>
+            <td class="entries"><%= finalDoc[i].entry %></td>
+            <td class="entries"><%= finalDoc[i].exit %></td>
+            <td class="entries"><%= finalDoc[i].duration %></td>
           </tr>
           <% } %>
         </tbody>
       </table>
     </div>
-    <div class="footer-div">
-      <nav class="navbar navbar-default footer">
-        <div class="container">
-          <ul class="nav navbar-nav navbar-left">
-            <li id="about"><a href="/about">ABOUT US</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <p>Made with ❤️ by SJ</p>
-          </ul>
+    <div class="container footer mt-auto py-3">
+      <footer class="pt-4 my-md-5 pt-md-5 border-top">
+        <div class="row">
+          <div class="col-12 col-md">
+              <h5 class="my-0 mr-md-auto font-weight-normal">
+                  <a class="logo-brand" href="/"> Payroll Tracker</a>
+                </h5>
+          </div>
+
+          <div class="col-6 col-md">
+            <ul class="list-unstyled text-small">
+              <li><a class="text-muted" href="/about">About</a></li>
+            </ul>
+          </div>
+
+          <div class="col-6 col-md">
+            <ul class="list-unstyled text-small">
+              <li class="text-muted">Made with ❤️ by SJ</li>
+            </ul>
+          </div>
         </div>
-      </nav>
+      </footer>
     </div>
   </body>
 </html>
