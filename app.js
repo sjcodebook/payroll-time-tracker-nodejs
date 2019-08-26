@@ -8,7 +8,10 @@ const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 const findOrCreate = require('mongoose-findorcreate');
 const date = require('date-and-time');
-var uniqueValidator = require('mongoose-unique-validator');
+const uniqueValidator = require('mongoose-unique-validator');
+const async = require('async');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const aboutContent = 'This is a payroll login hours tracker application';
 
@@ -52,7 +55,9 @@ const userSchema = mongoose.Schema({
     index: true,
     unique: true,
     required: [true, 'Is Required']
-  }
+  },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 });
 
 const postSchema = {
@@ -166,6 +171,10 @@ app.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
+app.get('/pass-recovery', function(req, res) {
+  res.render('forgot');
+});
+
 app.get('/logEntry', function(req, res) {
   if (req.isAuthenticated()) {
     const t = new Date();
@@ -240,6 +249,152 @@ app.get('/logExit', function(req, res) {
   } else {
     res.redirect('/');
   }
+});
+
+app.post('/pass-recovery', function(req, res, next) {
+  async.waterfall(
+    [
+      function(done) {
+        crypto.randomBytes(20, function(err, buf) {
+          var token = buf.toString('hex');
+          done(err, token);
+        });
+      },
+      function(token, done) {
+        User.findOne({ email: req.body.email }, function(err, user) {
+          if (!user) {
+            req.flash('error', 'No account with that email address exists.');
+            return res.redirect('/pass-recovery');
+          }
+
+          user.resetPasswordToken = token;
+          user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+          user.save(function(err) {
+            done(err, token, user);
+          });
+        });
+      },
+      function(token, user, done) {
+        var smtpTransport = nodemailer.createTransport({
+          service: 'Gmail',
+          auth: {
+            user: 'ted.mcgrath.woodworks@gmail.com',
+            pass: process.env.GMAILPW
+          }
+        });
+        var mailOptions = {
+          to: user.email,
+          from: 'pass-reset@payrolltracker.com',
+          subject: 'Node.js Password Reset',
+          text:
+            'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+            'Please click on the following link, or paste this into your browser to complete the process (Link will expire after one hour):\n\n' +
+            'http://' +
+            req.headers.host +
+            '/reset/' +
+            token +
+            '\n\n' +
+            'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+        };
+        smtpTransport.sendMail(mailOptions, function(err) {
+          console.log('mail sent');
+          req.flash(
+            'success',
+            'An e-mail has been sent to ' +
+              user.email +
+              ' with further instructions.'
+          );
+          done(err, 'done');
+        });
+      }
+    ],
+    function(err) {
+      if (err) return next(err);
+      res.redirect('/pass-recovery');
+    }
+  );
+});
+
+app.get('/reset/:token', function(req, res) {
+  User.findOne(
+    {
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() }
+    },
+    function(err, user) {
+      if (!user) {
+        req.flash('error', 'Password reset token is invalid or has expired.');
+        return res.redirect('/pass-recovery');
+      }
+      res.render('reset', { token: req.params.token });
+    }
+  );
+});
+
+app.post('/reset/:token', function(req, res) {
+  async.waterfall(
+    [
+      function(done) {
+        User.findOne(
+          {
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+          },
+          function(err, user) {
+            if (!user) {
+              req.flash(
+                'error',
+                'Password reset token is invalid or has expired.'
+              );
+              return res.redirect('back');
+            }
+            if (req.body.password === req.body.confirm) {
+              user.setPassword(req.body.password, function(err) {
+                user.resetPasswordToken = undefined;
+                user.resetPasswordExpires = undefined;
+
+                user.save(function(err) {
+                  req.logIn(user, function(err) {
+                    done(err, user);
+                  });
+                });
+              });
+            } else {
+              req.flash('error', 'Passwords do not match.');
+              return res.redirect('back');
+            }
+          }
+        );
+      },
+      function(user, done) {
+        var smtpTransport = nodemailer.createTransport({
+          service: 'Gmail',
+          auth: {
+            user: 'ted.mcgrath.woodworks@gmail.com',
+            pass: process.env.GMAILPW
+          }
+        });
+        var mailOptions = {
+          to: user.email,
+          from: 'pass-reset@payrolltracker.com',
+          subject: 'Your password has been changed',
+          text:
+            'Hello,\n\n' +
+            'This is a confirmation that the password for your account ' +
+            user.email +
+            ' has just been changed.\n'
+        };
+        smtpTransport.sendMail(mailOptions, function(err) {
+          req.flash('success', 'Success! Your password has been changed.');
+          done(err);
+        });
+      }
+    ],
+    function(err) {
+      res.redirect('/');
+    }
+  );
 });
 
 app.post('/register', function(req, res) {
