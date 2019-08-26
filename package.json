@@ -24,6 +24,7 @@
     "mongoose": "^5.6.6",
     "mongoose-encryption": "^2.0.2",
     "mongoose-findorcreate": "^3.0.0",
+    "mongoose-unique-validator": "^2.0.3",
     "nl2br": "0.0.3",
     "passport": "^0.4.0",
     "passport-facebook": "^3.0.0",

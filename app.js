@@ -8,6 +8,7 @@ const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 const findOrCreate = require('mongoose-findorcreate');
 const date = require('date-and-time');
+var uniqueValidator = require('mongoose-unique-validator');
 
 const aboutContent = 'This is a payroll login hours tracker application';
 
@@ -44,12 +45,13 @@ connection.once('open', () => {
   console.log('MongoDB connected');
 });
 
-const userSchema = new mongoose.Schema({
-  username: {
+const userSchema = mongoose.Schema({
+  username: { type: String, required: true, unique: true, trim: true },
+  email: {
     type: String,
-    required: true,
+    index: true,
     unique: true,
-    trim: true
+    required: [true, 'Is Required']
   }
 });
 
@@ -63,6 +65,9 @@ const postSchema = {
   complete: Boolean
 };
 
+userSchema.plugin(uniqueValidator, {
+  message: 'Must Be Unique.'
+});
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(findOrCreate);
 
@@ -238,18 +243,21 @@ app.get('/logExit', function(req, res) {
 });
 
 app.post('/register', function(req, res) {
-  User.register({ username: req.body.username }, req.body.password, function(
-    err,
-    user
-  ) {
-    if (err) {
-      res.render('fail-register', {
-        message: err.message
-      });
-    } else {
-      res.render('success-register');
+  User.register(
+    { username: req.body.username, email: req.body.email },
+    req.body.password,
+    function(err, user) {
+      if (err) {
+        console.log(err);
+
+        res.render('fail-register', {
+          message: err.message
+        });
+      } else {
+        res.render('success-register');
+      }
     }
-  });
+  );
 });
 
 app.post('/', function(req, res) {
