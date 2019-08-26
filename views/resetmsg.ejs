@@ -11,6 +11,10 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
 
+  <!-- Custom styles for this template -->
+  <link href="/css/signin.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+
   <style>
     .bd-placeholder-img {
       font-size: 1.125rem;
@@ -27,7 +31,6 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="/css/styles.css" />
 </head>
 
 <body>
@@ -35,13 +38,25 @@
     <h5 class="my-0 mr-md-auto font-weight-normal">
       <a class="logo-brand" href="/"> Payroll Tracker</a>
     </h5>
+
     <nav class="my-2 my-md-0 mr-md-3">
       <a class="p-2 text-dark" href="/">Login</a>
     </nav>
     <a class="btn btn-outline-primary" href="/register">Register</a>
   </div>
-  <div class="container">
-    <h1>About</h1>
-    <p><%= about %></p>
+  <div class="container text-center">
+    <div class="alert alert-danger" role="alert">
+      <%= message %>
+    </div>
+    <form class="form-signin" action="/reset/<%= token %>" method="POST">
+      <h1 class="h3 mb-3 font-weight-normal">Reset Password</h1>
+      <label for="username" class="sr-only">New Password</label>
+      <input type="password" class="form-control" placeholder="New password" name="password" required autofocus />
+      <label for="password" class="sr-only">Confirm Password</label>
+      <input type="password" class="form-control" placeholder="Confirm Password" name="confirm" required />
+      <button class="btn btn-lg btn-primary btn-block" type="submit">
+        Update Password
+      </button>
+    </form>
   </div>
   <%- include("partials/footer"); -%>

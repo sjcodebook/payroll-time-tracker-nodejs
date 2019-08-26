@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.set('view engine', 'ejs');
 
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 
 app.use(
   session({
@@ -80,19 +80,19 @@ const User = new mongoose.model('user', userSchema);
 
 passport.use(User.createStrategy());
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user.id);
 });
 
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
+passport.deserializeUser(function (id, done) {
+  User.findById(id, function (err, user) {
     done(err, user);
   });
 });
 
 const Post = mongoose.model('post', postSchema);
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect('/logged');
   } else {
@@ -100,9 +100,9 @@ app.get('/', function(req, res) {
   }
 });
 
-app.get('/all-entries', function(req, res) {
+app.get('/all-entries', function (req, res) {
   if (req.isAuthenticated()) {
-    Post.find().exec(function(err, doc) {
+    Post.find().exec(function (err, doc) {
       res.render('all-entries', {
         finalDoc: doc
       });
@@ -112,11 +112,11 @@ app.get('/all-entries', function(req, res) {
   }
 });
 
-app.get('/fail-attempt', function(req, res) {
+app.get('/fail-attempt', function (req, res) {
   res.render('fail-attempt');
 });
 
-app.get('/register', function(req, res) {
+app.get('/register', function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect('/logged');
   } else {
@@ -124,15 +124,15 @@ app.get('/register', function(req, res) {
   }
 });
 
-app.get('/logged', function(req, res) {
+app.get('/logged', function (req, res) {
   if (req.isAuthenticated()) {
-    Post.find({ username: nameUser }).exec(function(err, doc) {
+    Post.find({ username: nameUser }).exec(function (err, doc) {
       const finalDoc = doc;
       if (err) {
         console.log(err);
       } else if (Array.isArray(doc) && doc.length) {
         const arr = doc[doc.length - 1];
-        Post.findById(arr._id, function(err, doc) {
+        Post.findById(arr._id, function (err, doc) {
           if (err) {
             console.log(err);
           } else if (doc.complete === true) {
@@ -160,22 +160,18 @@ app.get('/logged', function(req, res) {
   }
 });
 
-app.get('/about', function(req, res) {
+app.get('/about', function (req, res) {
   res.render('about', {
     about: aboutContent
   });
 });
 
-app.get('/logout', function(req, res) {
+app.get('/logout', function (req, res) {
   req.logout();
   res.redirect('/');
 });
 
-app.get('/pass-recovery', function(req, res) {
-  res.render('forgot');
-});
-
-app.get('/logEntry', function(req, res) {
+app.get('/logEntry', function (req, res) {
   if (req.isAuthenticated()) {
     const t = new Date();
     const now = date.format(t, 'YYYY/MM/DD HH:mm:ss');
@@ -186,7 +182,7 @@ app.get('/logEntry', function(req, res) {
       rawEntry: rawNow,
       complete: false
     });
-    post.save(function(err) {
+    post.save(function (err) {
       if (err) {
         console.log(err);
       }
@@ -197,7 +193,7 @@ app.get('/logEntry', function(req, res) {
   }
 });
 
-app.get('/logExit', function(req, res) {
+app.get('/logExit', function (req, res) {
   if (req.isAuthenticated()) {
     const t = new Date();
     const now = date.format(t, 'YYYY/MM/DD HH:mm:ss');
@@ -220,7 +216,7 @@ app.get('/logExit', function(req, res) {
       };
     }
 
-    Post.find({ username: nameUser }).exec(function(err, doc) {
+    Post.find({ username: nameUser }).exec(function (err, doc) {
       if (err) {
         console.log(err);
       }
@@ -239,7 +235,7 @@ app.get('/logExit', function(req, res) {
           }
         },
         { new: true } // return updated post
-      ).exec(function(err, post) {
+      ).exec(function (err, post) {
         if (err) {
           console.log(err);
         }
@@ -251,31 +247,36 @@ app.get('/logExit', function(req, res) {
   }
 });
 
-app.post('/pass-recovery', function(req, res, next) {
+app.get('/pass-recovery', function (req, res) {
+  res.render('forgot');
+});
+
+app.post('/pass-recovery', function (req, res, next) {
   async.waterfall(
     [
-      function(done) {
-        crypto.randomBytes(20, function(err, buf) {
+      function (done) {
+        crypto.randomBytes(20, function (err, buf) {
           var token = buf.toString('hex');
           done(err, token);
         });
       },
-      function(token, done) {
-        User.findOne({ email: req.body.email }, function(err, user) {
+      function (token, done) {
+        User.findOne({ email: req.body.email }, function (err, user) {
           if (!user) {
-            req.flash('error', 'No account with that email address exists.');
-            return res.redirect('/pass-recovery');
+            return res.render('forgotmsg', {
+              message: 'Email Address Doesnot Exist'
+            });
           }
 
           user.resetPasswordToken = token;
           user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
-          user.save(function(err) {
+          user.save(function (err) {
             done(err, token, user);
           });
         });
       },
-      function(token, user, done) {
+      function (token, user, done) {
         var smtpTransport = nodemailer.createTransport({
           service: 'Gmail',
           auth: {
@@ -297,77 +298,77 @@ app.post('/pass-recovery', function(req, res, next) {
             '\n\n' +
             'If you did not request this, please ignore this email and your password will remain unchanged.\n'
         };
-        smtpTransport.sendMail(mailOptions, function(err) {
+        smtpTransport.sendMail(mailOptions, function (err) {
           console.log('mail sent');
-          req.flash(
-            'success',
-            'An e-mail has been sent to ' +
-              user.email +
-              ' with further instructions.'
-          );
+          res.render('forgotmsg', {
+            message: `Success, An E-Mail Has Been Sent To ${user.email} With Further Instructions.`
+          });
           done(err, 'done');
         });
       }
     ],
-    function(err) {
+    function (err) {
       if (err) return next(err);
       res.redirect('/pass-recovery');
     }
   );
 });
 
-app.get('/reset/:token', function(req, res) {
+app.get('/reset/:token', function (req, res) {
   User.findOne(
     {
       resetPasswordToken: req.params.token,
       resetPasswordExpires: { $gt: Date.now() }
     },
-    function(err, user) {
+    (err, user) => {
       if (!user) {
-        req.flash('error', 'Password reset token is invalid or has expired.');
-        return res.redirect('/pass-recovery');
+        return res.render('forgotmsg', {
+          message: 'Error, Password reset token is invalid or has expired.'
+        });
       }
       res.render('reset', { token: req.params.token });
     }
   );
 });
 
-app.post('/reset/:token', function(req, res) {
+app.post('/reset/:token', function (req, res) {
   async.waterfall(
     [
-      function(done) {
+      function (done) {
         User.findOne(
           {
             resetPasswordToken: req.params.token,
             resetPasswordExpires: { $gt: Date.now() }
           },
-          function(err, user) {
+          function (err, user) {
             if (!user) {
-              req.flash(
-                'error',
-                'Password reset token is invalid or has expired.'
-              );
-              return res.redirect('back');
+              return res.render('forgotmsg', {
+                message:
+                  'Error, Password reset token is invalid or has expired.'
+              });
             }
             if (req.body.password === req.body.confirm) {
-              user.setPassword(req.body.password, function(err) {
+              user.setPassword(req.body.password, function (err) {
                 user.resetPasswordToken = undefined;
                 user.resetPasswordExpires = undefined;
+                nameUser = user.username;
 
-                user.save(function(err) {
-                  req.logIn(user, function(err) {
+                user.save(function (err) {
+                  req.logIn(user, function (err) {
                     done(err, user);
                   });
                 });
               });
             } else {
-              req.flash('error', 'Passwords do not match.');
-              return res.redirect('back');
+              return res.render('resetmsg', {
+                message: 'Passwords Do Not Match.',
+                token: req.params.token
+              });
             }
           }
         );
       },
-      function(user, done) {
+      function (user, done) {
         var smtpTransport = nodemailer.createTransport({
           service: 'Gmail',
           auth: {
@@ -385,23 +386,23 @@ app.post('/reset/:token', function(req, res) {
             user.email +
             ' has just been changed.\n'
         };
-        smtpTransport.sendMail(mailOptions, function(err) {
-          req.flash('success', 'Success! Your password has been changed.');
+        smtpTransport.sendMail(mailOptions, function (err) {
+          // req.flash('success', 'Success! Your password has been changed.');
           done(err);
         });
       }
     ],
-    function(err) {
+    function (err) {
       res.redirect('/');
     }
   );
 });
 
-app.post('/register', function(req, res) {
+app.post('/register', function (req, res) {
   User.register(
     { username: req.body.username, email: req.body.email },
     req.body.password,
-    function(err, user) {
+    function (err, user) {
       if (err) {
         console.log(err);
 
@@ -415,21 +416,21 @@ app.post('/register', function(req, res) {
   );
 });
 
-app.post('/', function(req, res) {
+app.post('/', function (req, res) {
   const user = new User({
     username: req.body.username,
     password: req.body.password
   });
-  User.find({ username: req.body.username }).exec(function(err, doc) {
+  User.find({ username: req.body.username }).exec(function (err, doc) {
     if (Array.isArray(doc) && doc.length) {
-      req.login(user, function(err) {
+      req.login(user, function (err) {
         if (err) {
           console.log(err);
         } else {
           passport.authenticate('local', { failureRedirect: '/fail-attempt' })(
             req,
             res,
-            function() {
+            function () {
               nameUser = req.body.username;
               res.redirect('/logged');
             }
@@ -447,6 +448,6 @@ if (port == null || port == '') {
   port = 3000;
 }
 
-app.listen(port, function() {
+app.listen(port, function () {
   console.log('Server started');
 });

@@ -27,6 +27,8 @@
       }
     }
   </style>
+  <!-- Custom styles for this template -->
+  <link href="/css/signin.css" rel="stylesheet" />
   <link rel="stylesheet" href="/css/styles.css" />
 </head>
 
@@ -35,13 +37,26 @@
     <h5 class="my-0 mr-md-auto font-weight-normal">
       <a class="logo-brand" href="/"> Payroll Tracker</a>
     </h5>
+
     <nav class="my-2 my-md-0 mr-md-3">
       <a class="p-2 text-dark" href="/">Login</a>
     </nav>
     <a class="btn btn-outline-primary" href="/register">Register</a>
   </div>
-  <div class="container">
-    <h1>About</h1>
-    <p><%= about %></p>
+  <div class="container text-center">
+    <div class="alert alert-warning" role="alert">
+      <%= message %>
+    </div>
+    <form class="form-signin" action="/pass-recovery" method="POST">
+      <h1 class="h3 mb-3 font-weight-normal">Forgot Password</h1>
+      <br />
+      <label for="email" class="sr-only">Email</label>
+      <input type="email" class="form-control" placeholder="Email" name="email" required autofocus />
+      <br />
+
+      <button class="btn btn-lg btn-primary btn-block" type="submit">
+        Reset Password
+      </button>
+    </form>
   </div>
   <%- include("partials/footer"); -%>
