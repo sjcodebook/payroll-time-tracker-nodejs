@@ -29,15 +29,10 @@
       </div>
     </nav>
     <div class="container-fluid">
-      <a href="/logEntry" class="btn btn-primary mr-3">CREATE LOGIN ENTRY</a>
-    </div>
-    <div class="container">
-      <h4>Howdy, <%= username %></h4>
-    </div>
-    <div class="container-fluid">
       <table class="table">
         <thead>
           <tr>
+            <th scope="col">Username</th>
             <th scope="col">Logged In (Date, Time)</th>
             <th scope="col">Logged Out (Date, Time)</th>
             <th scope="col">Duration (hh:mm:ss)</th>
@@ -47,6 +42,7 @@
         <tbody>
           <% for(let i = (finalDoc.length-1); i>=0;i--) { %>
           <tr>
+            <td><%= finalDoc[i].username %></td>
             <td><%= finalDoc[i].entry %></td>
             <td><%= finalDoc[i].exit %></td>
             <td><%= finalDoc[i].duration %></td>

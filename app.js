@@ -2,7 +2,6 @@
 require('dotenv').config();
 const express = require('express');
 const ejs = require('ejs');
-const _ = require('lodash');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
@@ -10,14 +9,12 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const findOrCreate = require('mongoose-findorcreate');
 const date = require('date-and-time');
 
-const aboutContent =
-  'Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.';
+const aboutContent = 'This is a payroll login hours tracker application';
 
 let nameUser = '';
 
 const app = express();
 
-// Body Parser Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -53,8 +50,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true
-  },
-  password: String
+  }
 });
 
 const postSchema = {
@@ -91,6 +87,18 @@ app.get('/', function(req, res) {
     res.redirect('/logged');
   } else {
     res.render('login');
+  }
+});
+
+app.get('/all-entries', function(req, res) {
+  if (req.isAuthenticated()) {
+    Post.find().exec(function(err, doc) {
+      res.render('all-entries', {
+        finalDoc: doc
+      });
+    });
+  } else {
+    res.redirect('/');
   }
 });
 
@@ -235,8 +243,9 @@ app.post('/register', function(req, res) {
     user
   ) {
     if (err) {
-      console.log(err);
-      res.redirect('/register');
+      res.render('fail-register', {
+        message: err.message
+      });
     } else {
       res.render('success-register');
     }
@@ -248,18 +257,24 @@ app.post('/', function(req, res) {
     username: req.body.username,
     password: req.body.password
   });
-  req.login(user, function(err) {
-    if (err) {
-      console.log(err);
-    } else {
-      passport.authenticate('local', { failureRedirect: '/fail-attempt' })(
-        req,
-        res,
-        function() {
-          nameUser = req.body.username;
-          res.redirect('/logged');
+  User.find({ username: req.body.username }).exec(function(err, doc) {
+    if (Array.isArray(doc) && doc.length) {
+      req.login(user, function(err) {
+        if (err) {
+          console.log(err);
+        } else {
+          passport.authenticate('local', { failureRedirect: '/fail-attempt' })(
+            req,
+            res,
+            function() {
+              nameUser = req.body.username;
+              res.redirect('/logged');
+            }
+          );
         }
-      );
+      });
+    } else {
+      res.render('not-found');
     }
   });
 });
