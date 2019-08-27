@@ -14,6 +14,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
 const aboutContent = 'This is a payroll login hours tracker application';
+const contactContent = 'Email: jainsanmati846@gmail.com';
 
 let nameUser = '';
 
@@ -193,6 +194,12 @@ app.get('/logged', function(req, res) {
 app.get('/about', function(req, res) {
   res.render('about', {
     about: aboutContent
+  });
+});
+
+app.get('/contact', function(req, res) {
+  res.render('contact', {
+    contact: contactContent
   });
 });
 
