@@ -126,13 +126,31 @@ app.get('/register', function(req, res) {
   }
 });
 
+app.get('/delete', function(req, res) {
+  if (req.isAuthenticated()) {
+    User.findOne({ username: nameUser }).exec(function(err, doc) {
+      if (doc.isAdmin === true) {
+        Post.deleteMany({}, function(err) {
+          if (err) console.log(err);
+          res.redirect('/');
+        });
+      } else {
+        res.render('404');
+      }
+    });
+  } else {
+    res.redirect('/');
+  }
+});
+
 app.get('/logged', function(req, res) {
   if (req.isAuthenticated()) {
     User.findOne({ username: nameUser }).exec(function(err, doc) {
       if (doc.isAdmin === true) {
         Post.find().exec(function(err, doc) {
           res.render('all-entries', {
-            finalDoc: doc
+            finalDoc: doc,
+            username: nameUser
           });
         });
       } else {
