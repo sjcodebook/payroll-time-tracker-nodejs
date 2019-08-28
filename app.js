@@ -246,11 +246,15 @@ app.get('/logExit', function(req, res) {
       minute = minute % 60;
       day = Math.floor(hour / 24);
       hour = hour % 24;
+      function pad(n) {
+        return n < 10 ? '0' + n : n;
+      }
+
       return {
-        day: day,
-        hour: hour,
-        minute: minute,
-        seconds: seconds
+        day: pad(day),
+        hour: pad(hour),
+        minute: pad(minute),
+        seconds: pad(seconds)
       };
     }
 
