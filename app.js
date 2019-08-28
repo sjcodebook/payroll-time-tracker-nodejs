@@ -147,14 +147,12 @@ app.get('/logged', function(req, res) {
   if (req.isAuthenticated()) {
     User.findOne({ username: nameUser }).exec(function(err, doc) {
       if (doc.isAdmin === true) {
-        Post.find()
-          .sort('-createdAt -rawEntry')
-          .exec(function(err, doc) {
-            res.render('all-entries', {
-              finalDoc: doc,
-              username: nameUser
-            });
+        Post.find().exec(function(err, doc) {
+          res.render('all-entries', {
+            finalDoc: doc,
+            username: nameUser
           });
+        });
       } else {
         Post.find({ username: nameUser }).exec(function(err, doc) {
           const finalDoc = doc;

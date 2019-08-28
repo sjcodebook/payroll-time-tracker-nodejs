@@ -66,14 +66,14 @@
         </thead>
 
         <tbody>
-          <% finalDoc.forEach(final => {%>
+          <% for(let i = (finalDoc.length-1); i>=0;i--) { %>
           <tr>
-            <td class="entries"><%= final.username %></td>
-            <td class="entries"><%= final.entry %></td>
-            <td class="entries"><%= final.exit %></td>
-            <td class="entries"><%= final.duration %></td>
+            <td class="entries"><%= finalDoc[i].username %></td>
+            <td class="entries"><%= finalDoc[i].entry %></td>
+            <td class="entries"><%= finalDoc[i].exit %></td>
+            <td class="entries"><%= finalDoc[i].duration %></td>
           </tr>
-          <% }); %>
+          <% } %>
         </tbody>
       </table>
     </div>
