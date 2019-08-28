@@ -212,7 +212,7 @@ app.get('/logout', function(req, res) {
 app.get('/logEntry', function(req, res) {
   if (req.isAuthenticated()) {
     const t = new Date();
-    const now = date.format(t, 'YYYY/MM/DD HH:mm:ss');
+    const now = date.format(t, 'DD/MMM/YYYY ddd hh:mm:ss A');
     const rawNow = Date.now();
     const post = new Post({
       username: nameUser,
@@ -234,7 +234,7 @@ app.get('/logEntry', function(req, res) {
 app.get('/logExit', function(req, res) {
   if (req.isAuthenticated()) {
     const t = new Date();
-    const now = date.format(t, 'YYYY/MM/DD HH:mm:ss');
+    const now = date.format(t, 'DD/MMM/YYYY ddd hh:mm:ss A');
     const rawNow = Date.now();
 
     function convertMS(milliseconds) {
