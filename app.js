@@ -72,7 +72,6 @@ const userSchema = mongoose.Schema({
 
 const postSchema = {
   username: String,
-  test: Date,
   entry: String,
   rawEntry: Number,
   exit: String,
@@ -211,10 +210,9 @@ app.get('/logout', function(req, res) {
 app.get('/logEntry', function(req, res) {
   if (req.isAuthenticated()) {
     const t = new Date();
-    const now = date.format(t, 'DD/MMM/YYYY ddd hh:mm:ss A');
+    const now = date.format(t, 'DD/MMM/YYYY ddd hh:mm:ss A Z');
     const rawNow = Date.now();
     const post = new Post({
-      test: t,
       username: nameUser,
       entry: now,
       rawEntry: rawNow,
