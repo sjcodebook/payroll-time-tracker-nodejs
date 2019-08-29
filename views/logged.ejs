@@ -1,67 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Payroll Tracker</title>
 
-  <title>Payroll Tracker</title>
+    <!-- Bootstrap core CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
 
-  <!-- Bootstrap core CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
-
-  <style>
-    .bd-placeholder-img {
-      font-size: 1.125rem;
-      text-anchor: middle;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    @media (min-width: 768px) {
-      .bd-placeholder-img-lg {
-        font-size: 3.5rem;
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
-    }
-  </style>
-  <link rel="stylesheet" href="/css/styles.css" />
-</head>
 
-<body>
-  <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-    <h5 class="my-0 mr-md-auto font-weight-normal">
-      <a class="logo-brand" href="/"> Payroll Tracker</a>
-    </h5>
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
 
-    <a class="btn btn-outline-primary" href="/logout">SIGNOUT</a>
-  </div>
-  <div class="container content">
-    <div class="container">
-      <h4 class="greeting">Howdy, <%= username %></h4>
-      <a href="/logExit" class="btn btn-outline-primary mr-3 entryBtn">CREATE LOGOUT ENTRY</a>
+  <body>
+    <div
+      class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm"
+    >
+      <h5 class="my-0 mr-md-auto font-weight-normal">
+        <a class="logo-brand" href="/"> Payroll Tracker</a>
+      </h5>
+
+      <a class="btn btn-outline-primary" href="/logout">SIGNOUT</a>
     </div>
+    <div class="container content">
+      <div class="container">
+        <h4 class="greeting">Howdy, <%= username %></h4>
+        <button
+          onclick="createLogout()"
+          class="btn btn-outline-primary btn-lg btn-block entryBtn"
+        >
+          CREATE LOGOUT ENTRY
+        </button>
+      </div>
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col" class="entries">Logged In (Date, Time)</th>
-          <th scope="col" class="entries">Logged Out (Date, Time)</th>
-          <th scope="col" class="entries">Duration (hh:mm:ss)</th>
-        </tr>
-      </thead>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" class="entries">Logged In (Date, Time)</th>
+            <th scope="col" class="entries">Logged Out (Date, Time)</th>
+            <th scope="col" class="entries">Duration (hh:mm:ss)</th>
+            <th scope="col" class="entries">Timezone</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <% for(let i = (finalDoc.length-1); i>=0;i--) { %>
-        <tr>
-          <td class="entries"><%= finalDoc[i].entry %></td>
-          <td class="entries"><%= finalDoc[i].exit %></td>
-          <td class="entries"><%= finalDoc[i].duration %></td>
-        </tr>
-        <% } %>
-      </tbody>
-    </table>
-  </div>
-  <%- include("partials/footer"); -%>
+        <tbody>
+          <% for(let i = (finalDoc.length-1); i>=0;i--) { %>
+          <tr>
+            <td class="entries"><%= finalDoc[i].entryDayTime %></td>
+            <td class="entries"><%= finalDoc[i].exitDayTime %></td>
+            <td class="entries"><%= finalDoc[i].duration %></td>
+            <td class="entries"><%= finalDoc[i].entryTimeZone %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    <script>
+      function createLogout() {
+        let t = new Date();
+        console.log(t);
+
+        let url = '/logExit/' + t;
+        window.location = url;
+      }
+    </script>
+    <%- include("partials/footer"); -%>
+  </body>
+</html>

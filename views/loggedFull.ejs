@@ -49,9 +49,12 @@
     <div class="container content">
       <div class="container">
         <h4 class="greeting">Howdy, <%= username %></h4>
-        <a href="/logEntry" class="btn btn-outline-primary mr-3 entryBtn"
-          >CREATE LOGIN ENTRY</a
+        <button
+          onclick="createLogin()"
+          class="btn btn-outline-primary btn-lg btn-block entryBtn"
         >
+          CREATE LOGIN ENTRY
+        </button>
       </div>
 
       <table class="table">
@@ -60,20 +63,31 @@
             <th scope="col" class="entries">Logged In (Date, Time)</th>
             <th scope="col" class="entries">Logged Out (Date, Time)</th>
             <th scope="col" class="entries">Duration (hh:mm:ss)</th>
+            <th scope="col" class="entries">Timezone</th>
           </tr>
         </thead>
 
         <tbody>
           <% for(let i = (finalDoc.length-1); i>=0;i--) { %>
           <tr>
-            <td class="entries"><%= finalDoc[i].entry %></td>
-            <td class="entries"><%= finalDoc[i].exit %></td>
+            <td class="entries"><%= finalDoc[i].entryDayTime %></td>
+            <td class="entries"><%= finalDoc[i].exitDayTime %></td>
             <td class="entries"><%= finalDoc[i].duration %></td>
+            <td class="entries"><%= finalDoc[i].entryTimeZone %></td>
           </tr>
           <% } %>
         </tbody>
       </table>
     </div>
+    <script>
+      function createLogin() {
+        let t = new Date();
+        console.log(t);
+
+        let url = '/logEntry/' + t;
+        window.location = url;
+      }
+    </script>
     <%- include("partials/footer"); -%>
   </body>
 </html>

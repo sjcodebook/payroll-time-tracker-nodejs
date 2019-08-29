@@ -62,6 +62,7 @@
             <th scope="col" class="entries">Logged In (Date, Time)</th>
             <th scope="col" class="entries">Logged Out (Date, Time)</th>
             <th scope="col" class="entries">Duration (hh:mm:ss)</th>
+            <th scope="col" class="entries">Timezone</th>
           </tr>
         </thead>
 
@@ -69,9 +70,10 @@
           <% for(let i = (finalDoc.length-1); i>=0;i--) { %>
           <tr>
             <td class="entries"><%= finalDoc[i].username %></td>
-            <td class="entries"><%= finalDoc[i].entry %></td>
-            <td class="entries"><%= finalDoc[i].exit %></td>
+            <td class="entries"><%= finalDoc[i].entryDayTime %></td>
+            <td class="entries"><%= finalDoc[i].exitDayTime %></td>
             <td class="entries"><%= finalDoc[i].duration %></td>
+            <td class="entries"><%= finalDoc[i].entryTimeZone %></td>
           </tr>
           <% } %>
         </tbody>

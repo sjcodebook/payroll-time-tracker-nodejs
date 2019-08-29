@@ -72,9 +72,10 @@ const userSchema = mongoose.Schema({
 
 const postSchema = {
   username: String,
-  entry: String,
+  entryDayTime: String,
+  entryTimeZone: String,
   rawEntry: Number,
-  exit: String,
+  exitDayTime: String,
   rawExit: Number,
   duration: String,
   complete: Boolean,
@@ -207,14 +208,16 @@ app.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
-app.get('/logEntry', function(req, res) {
+app.get('/logEntry/:date', function(req, res) {
   if (req.isAuthenticated()) {
-    const t = new Date();
-    const now = date.format(t, 'DD/MMM/YYYY ddd hh:mm:ss A Z');
+    const now = req.params.date;
+    const nowDayTime = now.substring(0, 25);
+    const timeZone = now.substring(25, now.length);
     const rawNow = Date.now();
     const post = new Post({
       username: nameUser,
-      entry: now,
+      entryDayTime: nowDayTime,
+      entryTimeZone: timeZone,
       rawEntry: rawNow,
       complete: false
     });
@@ -229,10 +232,11 @@ app.get('/logEntry', function(req, res) {
   }
 });
 
-app.get('/logExit', function(req, res) {
+app.get('/logExit/:date', function(req, res) {
   if (req.isAuthenticated()) {
-    const t = new Date();
-    const now = date.format(t, 'DD/MMM/YYYY ddd hh:mm:ss A');
+    const now = req.params.date;
+    const nowDayTime = now.substring(0, 25);
+    const timeZone = now.substring(25, now.length);
     const rawNow = Date.now();
 
     function convertMS(milliseconds) {
@@ -268,7 +272,7 @@ app.get('/logExit', function(req, res) {
         { _id: obj._id },
         {
           $set: {
-            exit: now,
+            exitDayTime: nowDayTime,
             rawExit: rawNow,
             complete: true,
             duration: timeStr
