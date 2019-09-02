@@ -81,7 +81,7 @@ const postSchema = {
   complete: Boolean,
   createdAt: {
     type: Date,
-    default: Date.now()
+    default: new Date()
   }
 };
 
@@ -133,6 +133,31 @@ app.get('/delete', function(req, res) {
       if (doc.isAdmin === true) {
         Post.deleteMany({}, function(err) {
           if (err) console.log(err);
+          res.redirect('/');
+        });
+      } else {
+        res.render('404');
+      }
+    });
+  } else {
+    res.redirect('/');
+  }
+});
+
+app.get('/deleteSpecific', function(req, res) {
+  if (req.isAuthenticated()) {
+    User.findOne({ username: nameUser }).exec(function(err, doc) {
+      if (doc.isAdmin === true) {
+        const l = req.originalUrl;
+        let from = l.substring(21, 31);
+        let to = l.substring(35, l.length);
+
+        Post.deleteMany({
+          createdAt: {
+            $gte: from,
+            $lte: to
+          }
+        }).exec(function(err, doc) {
           res.redirect('/');
         });
       } else {
