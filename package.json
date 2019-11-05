@@ -19,7 +19,7 @@
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
-    "mongoose": "^5.6.6",
+    "mongoose": "^5.7.5",
     "mongoose-encryption": "^2.0.2",
     "mongoose-findorcreate": "^3.0.0",
     "mongoose-unique-validator": "^2.0.3",
